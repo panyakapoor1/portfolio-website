@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 import { contactInfo } from '../constants';
 import { fadeIn } from '../utils/motion';
 import { gsap, ScrollTrigger } from '../utils/gsap';
@@ -50,10 +50,22 @@ const Contact = () => {
     e.preventDefault();
     setStatus('loading');
 
+    // Validation for environment variables
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      console.error('EmailJS Error: Environment variables are missing. Please check your .env file and RESTART your dev server.');
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 4000);
+      return;
+    }
+
     emailjs
       .send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         {
           from_name: form.name,
           to_name: 'Panya Kapoor',
@@ -61,14 +73,16 @@ const Contact = () => {
           to_email: contactInfo.email,
           message: form.message,
         },
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        publicKey
       )
-      .then(() => {
+      .then((result) => {
+        console.log('Email successfully sent:', result.text);
         setStatus('success');
         setForm({ name: '', email: '', message: '' });
         setTimeout(() => setStatus('idle'), 4000);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Email sending failed:', error);
         setStatus('error');
         setTimeout(() => setStatus('idle'), 4000);
       });
