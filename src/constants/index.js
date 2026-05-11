@@ -1,3 +1,6 @@
+import profile from "../assets/profile.jpeg";
+import resume from "../assets/resume.pdf";
+
 export const navLinks = [
   { id: "about", title: "About" },
   { id: "experience", title: "Experience" },
@@ -18,9 +21,9 @@ export const heroData = {
   ],
   cta: {
     primary: { text: "View My Work", link: "#projects" },
-    secondary: { text: "Download Resume", link: "/assets/resume.pdf" },
+    secondary: { text: "Download Resume", link: resume },
   },
-  profileImage: "/assets/images/profile.jpeg",
+  profileImage: profile,
 };
 
 export const aboutData = {
@@ -144,7 +147,7 @@ export const contactInfo = {
   socials: [
     {
       name: "LinkedIn",
-      url: "https://www.linkedin.com/in/panya-kapoor",
+      url: "https://www.linkedin.com/in/panya-kapoor-43178427b/",
       icon: "linkedin",
     },
     {
@@ -163,7 +166,7 @@ export const contactInfo = {
 export const footerData = {
   text: "Designed & Built by Panya Kapoor · 2026",
   socials: [
-    { name: "LinkedIn", url: "https://www.linkedin.com/in/panya-kapoor" },
+    { name: "LinkedIn", url: "https://www.linkedin.com/in/panya-kapoor-43178427b/" },
     { name: "GitHub", url: "https://github.com/panyakapoor1" },
     { name: "LeetCode", url: "https://leetcode.com/_panyakpr1" },
   ],
