@@ -63,12 +63,14 @@ const Contact = () => {
         },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       )
-      .then(() => {
+      .then((response) => {
+        console.log('SUCCESS!', response.status, response.text);
         setStatus('success');
         setForm({ name: '', email: '', message: '' });
         setTimeout(() => setStatus('idle'), 4000);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('FAILED...', err);
         setStatus('error');
         setTimeout(() => setStatus('idle'), 4000);
       });
