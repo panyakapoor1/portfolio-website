@@ -1,100 +1,137 @@
-import { useEffect, useRef } from 'react';
-import { gsap, ScrollTrigger } from '../utils/gsap';
-import { experiences } from '../constants';
+/* eslint-disable react-refresh/only-export-components */
+import { useRef, useEffect } from 'react';
+import { gsap } from '../utils/gsap';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import SectionWrapper from '../hoc/SectionWrapper';
+import { experiences } from '../constants';
 
-const ExperienceCard = ({ experience, index }) => (
-  <div className="timeline-item flex gap-6 sm:gap-10 relative">
-    <div className="flex flex-col items-center">
-      <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-2xl flex-shrink-0 z-10">
-        {experience.icon}
+const ExperienceCard = ({ exp, index }) => {
+  return (
+    <div className="relative pl-10 md:pl-0 w-full flex flex-col md:flex-row justify-between items-start md:items-center group">
+      {/* Timeline Dot */}
+      <div className="absolute left-[3px] md:left-1/2 md:-translate-x-1/2 top-2 md:top-1/2 md:-translate-y-1/2 w-4 h-4 rounded-full bg-primary border-2 border-[var(--accent)] z-20 
+        group-hover:bg-[var(--accent)] transition-colors duration-500 shadow-[0_0_15px_rgba(var(--accent-r),var(--accent-g),var(--accent-b),0.5)]" 
+      />
+
+      {/* Date (Left on Desktop, Top on Mobile) */}
+      <div className={`md:w-[45%] ${index % 2 === 0 ? 'md:text-right md:pr-12' : 'md:order-last md:pl-12'} mb-2 md:mb-0`}>
+        <span className="text-[11px] font-mono text-[var(--accent)] uppercase tracking-wider bg-[var(--accent-glass)] px-3 py-1 rounded-full border border-[var(--accent)]/20">
+          {exp.date}
+        </span>
       </div>
-      {index < experiences.length - 1 && (
-        <div className="w-px flex-1 bg-gradient-to-b from-accent/20 to-transparent mt-2" />
-      )}
-    </div>
 
-    <div className="pb-12 flex-1">
-      <div className="bg-tertiary/40 border border-[rgba(145,94,255,0.08)] rounded-xl p-6 backdrop-blur-sm hover:border-accent/15 transition-all duration-300">
-        <p className="text-xs font-inter text-accent font-medium uppercase tracking-wider mb-2">
-          {experience.date}
-        </p>
-        <h3 className="text-xl font-poppins font-semibold text-white mb-1">
-          {experience.title}
-        </h3>
-        <p className="text-sm font-inter text-secondary mb-2">
-          {experience.company}
-        </p>
-        {experience.link && (
-          <a
-            href={experience.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block text-xs font-inter text-accent hover:underline mb-4"
-          >
-            View Project →
-          </a>
-        )}
-        <ul className="space-y-2">
-          {experience.points.map((point, i) => (
-            <li key={i} className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
-              <span className="text-sm font-inter text-secondary/80 leading-relaxed">
-                {point}
-              </span>
+      {/* Card Content */}
+      <div className={`exp-card w-full md:w-[45%] glass-subtle rounded-2xl p-6 relative overflow-hidden gradient-border transition-transform duration-500 hover:-translate-y-1
+        ${index % 2 === 0 ? 'md:order-last' : 'md:text-right'}`}
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-30" />
+        
+        <div className={`flex items-center gap-3 mb-4 ${index % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
+          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl shrink-0">
+            {exp.icon}
+          </div>
+          <div>
+            <h3 className="text-lg font-playfair font-semibold text-white">{exp.title}</h3>
+            <p className="text-sm font-inter text-secondary/80">{exp.company}</p>
+          </div>
+        </div>
+
+        <ul className={`space-y-2 mt-4 ${index % 2 === 0 ? '' : 'md:flex flex-col items-end'}`}>
+          {exp.points.map((point, i) => (
+            <li key={i} className="text-sm text-secondary/70 flex items-start gap-2 max-w-sm">
+              <span className="text-[var(--accent)] mt-1.5 text-[8px]">●</span>
+              <span className={`flex-1 ${index % 2 === 0 ? '' : 'md:text-right'}`}>{point}</span>
             </li>
           ))}
         </ul>
-      </div>
-    </div>
-  </div>
-);
 
-const Experience = () => {
-  const sectionRef = useRef(null);
-  const reducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    gsap.fromTo(
-      '.timeline-item',
-      { x: -60, autoAlpha: 0 },
-      {
-        x: 0,
-        autoAlpha: 1,
-        stagger: 0.18,
-        ease: 'power2.out',
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: '.experience-section',
-          start: 'top 70%',
-        },
-      }
-    );
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => {
-        if (t.vars?.trigger === '.experience-section') t.kill();
-      });
-    };
-  }, [reducedMotion]);
-
-  return (
-    <div ref={sectionRef} className="experience-section">
-      <p className="text-sm font-inter uppercase tracking-[4px] text-secondary mb-2">What I've Done So Far</p>
-      <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-white mb-12">
-        Experience<span className="text-accent">.</span>
-      </h2>
-
-      <div className="max-w-3xl mx-auto">
-        {experiences.map((exp, index) => (
-          <ExperienceCard key={exp.company} experience={exp} index={index} />
-        ))}
+        {exp.link && (
+          <a
+            href={exp.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-2 mt-6 text-xs font-mono text-white/50 hover:text-[var(--accent)] transition-colors magnetic-target
+              ${index % 2 === 0 ? '' : 'md:justify-end md:w-full'}`}
+          >
+            Visit Website
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </a>
+        )}
       </div>
     </div>
   );
 };
 
-export default SectionWrapper(Experience, 'experience');
+const Experience = () => {
+  const containerRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reducedMotion || !containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Timeline progress fill animation
+      gsap.to('.timeline-fill', {
+        height: '100%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.timeline-container',
+          start: 'top center',
+          end: 'bottom center',
+          scrub: true,
+        }
+      });
+
+      // Reveal cards
+      gsap.utils.toArray('.exp-card').forEach((card) => {
+        gsap.fromTo(
+          card,
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%',
+            }
+          }
+        );
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [reducedMotion]);
+
+  return (
+    <div ref={containerRef} className="w-full relative">
+      {/* Ambient Glow Orb */}
+      <div className="absolute top-[20%] right-[-10%] w-[400px] h-[400px] bg-[var(--accent)]/15 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+      <div className="mb-16">
+        <p className="text-sm font-mono text-secondary tracking-widest uppercase mb-2">02</p>
+        <h2 className="text-5xl md:text-6xl font-playfair font-bold text-white italic">Experience</h2>
+      </div>
+
+      <div className="timeline-container relative max-w-4xl mx-auto py-10">
+        {/* Background Line */}
+        <div className="absolute left-[10px] md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-[2px] bg-white/5 rounded-full" />
+        
+        {/* Animated Fill Line */}
+        <div className="timeline-fill absolute left-[10px] md:left-1/2 md:-translate-x-1/2 top-0 w-[2px] bg-gradient-to-b from-[var(--accent)] to-[var(--accent-cyan)] shadow-[0_0_15px_rgba(var(--accent-r),var(--accent-g),var(--accent-b),0.5)] h-0 rounded-full z-10" />
+
+        <div className="space-y-16">
+          {experiences.map((exp, index) => (
+            <ExperienceCard key={index} exp={exp} index={index} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SectionWrapper(Experience, 'experience', '02');

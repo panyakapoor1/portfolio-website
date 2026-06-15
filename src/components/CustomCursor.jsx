@@ -18,12 +18,41 @@ const CustomCursor = () => {
     const { clientX: x, clientY: y } = e;
 
     gsap.set(dotRef.current, { x, y });
-    gsap.to(ringRef.current, {
-      x,
-      y,
-      duration: 0.6,
-      ease: 'power2.out',
-    });
+    
+    // Check if hovering over a magnetic target
+    const target = document.elementFromPoint(x, y)?.closest('.magnetic-target');
+    
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Calculate pull (max 15px)
+      const pullX = (x - centerX) * 0.2;
+      const pullY = (y - centerY) * 0.2;
+
+      gsap.to(ringRef.current, {
+        x: centerX + pullX,
+        y: centerY + pullY,
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      
+      // Pull the button itself slightly
+      gsap.to(target, {
+        x: pullX,
+        y: pullY,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    } else {
+      gsap.to(ringRef.current, {
+        x,
+        y,
+        duration: 0.6,
+        ease: 'power2.out',
+      });
+    }
   }, []);
 
   const handleMouseEnter = useCallback((e) => {
@@ -44,25 +73,36 @@ const CustomCursor = () => {
       return;
     }
 
-    if (target.closest('a, button, [role="button"]')) {
+    if (target.closest('a, button, [role="button"], .magnetic-target')) {
       gsap.to(ringRef.current, {
         width: 60,
         height: 60,
-        borderColor: '#915EFF',
+        borderColor: 'var(--accent)',
+        backgroundColor: 'transparent',
         duration: 0.3,
       });
+      gsap.to(dotRef.current, { scale: 0, duration: 0.2 });
     }
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseLeave = useCallback((e) => {
     if (isTouch.current) return;
+    
+    const target = e.target.closest('.magnetic-target');
+    if (target) {
+      // Reset button position
+      gsap.to(target, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
+    }
+
     gsap.to([dotRef.current, ringRef.current], { opacity: 1, duration: 0.2 });
+    gsap.to(dotRef.current, { scale: 1, duration: 0.2 });
     gsap.to(ringRef.current, {
       width: 40,
       height: 40,
-      borderColor: 'rgba(255, 255, 255, 0.5)',
+      borderColor: 'rgba(255, 255, 255, 0.6)',
       duration: 0.3,
     });
+    
     if (textRef.current) {
       textRef.current.style.opacity = '0';
       textRef.current.textContent = '';
