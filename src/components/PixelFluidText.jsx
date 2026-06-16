@@ -11,13 +11,31 @@ const PixelFluidText = ({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dynamicFontSize, setDynamicFontSize] = useState(fontSize);
 
   useEffect(() => {
     // Ensure font is loaded before drawing
     document.fonts.ready.then(() => {
       setIsLoaded(true);
     });
-  }, []);
+
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 480) {
+        setDynamicFontSize("70px");
+      } else if (width < 768) {
+        setDynamicFontSize("90px");
+      } else if (width < 1024) {
+        setDynamicFontSize("120px");
+      } else {
+        setDynamicFontSize(fontSize);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [fontSize]);
 
   useEffect(() => {
     if (!isLoaded || !canvasRef.current || !containerRef.current) return;
@@ -91,7 +109,7 @@ const PixelFluidText = ({
       
       // Draw text to extract pixels
       ctx.fillStyle = color;
-      ctx.font = `bold ${fontSize} ${fontFamily}`;
+      ctx.font = `bold ${dynamicFontSize} ${fontFamily}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
@@ -99,8 +117,10 @@ const PixelFluidText = ({
       const words = text.split(' ');
       if (words.length > 1) {
         // Multi-line for all screen sizes
-        ctx.fillText(words[0], width / 2, height / 2 - parseInt(fontSize)/2 + 20);
-        ctx.fillText(words.slice(1).join(' '), width / 2, height / 2 + parseInt(fontSize)/2 - 10);
+        const baseSize = parseInt(dynamicFontSize);
+        const offset = baseSize * 0.45; // 45% of font size for spacing
+        ctx.fillText(words[0], width / 2, height / 2 - offset);
+        ctx.fillText(words.slice(1).join(' '), width / 2, height / 2 + offset);
       } else {
         ctx.fillText(text, width / 2, height / 2);
       }
@@ -160,10 +180,6 @@ const PixelFluidText = ({
       canvas.style.height = `${height}px`;
       ctx.scale(dpr, dpr);
       
-      // Update font size for responsiveness
-      const newFontSize = width < 768 ? "60px" : "160px";
-      ctx.font = `bold ${newFontSize} ${fontFamily}`;
-      
       init();
     };
 
@@ -179,7 +195,7 @@ const PixelFluidText = ({
       canvas.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [text, fontSize, color, gap, radius, isLoaded]);
+  }, [text, dynamicFontSize, fontSize, color, gap, radius, isLoaded, fontFamily]);
 
   return (
     <div ref={containerRef} className="w-full h-[300px] md:h-[400px] flex items-center justify-center relative cursor-crosshair">

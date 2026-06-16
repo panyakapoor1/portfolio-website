@@ -61,7 +61,7 @@ const Hero = () => {
             sequence={heroData.typewriterSequences}
             wrapper="p"
             speed={50}
-            className="text-lg sm:text-xl font-mono text-secondary/90 bg-white/[0.03] px-6 py-2 rounded-full border border-white/5"
+            className="text-sm sm:text-base md:text-xl whitespace-nowrap font-mono text-secondary/90 bg-white/[0.03] px-4 sm:px-6 py-2 rounded-full border border-white/5"
             repeat={Infinity}
           />
         </div>
